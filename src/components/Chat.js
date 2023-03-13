@@ -9,6 +9,7 @@ import {
   orderBy,
 } from "firebase/firestore";
 import { auth, db } from "../firebase-config";
+import "../styles/chat.css";
 
 const Chat = ({ room }) => {
   const [newMessage, setNewMessage] = useState("");
@@ -25,9 +26,14 @@ const Chat = ({ room }) => {
       createdAt: serverTimestamp(),
       user: auth.currentUser.displayName,
       room,
+      userPhoto: auth.currentUser.photoURL
     });
 
     setNewMessage("");
+  };
+
+  const formatMessageDate = (messageDate) => {
+    return new Date(messageDate * 1000).toLocaleString();
   };
 
   useEffect(() => {
@@ -54,9 +60,21 @@ const Chat = ({ room }) => {
       </div>
       <div className="messages">
         {messages.map((message) => (
-          <div className="message" key={message.id}>
-            <span className="user">{message.user} </span>
-            {message.text}*
+          <div className="user-message-container">
+            <img
+              className="user-photo"
+              src={message.userPhoto}
+              alt="User Photo"
+            />
+            <div key={message.id} className="message-container">
+              <div className="message">
+                <span className="user">{message.user} </span>
+                <span className="message-date">
+                  {formatMessageDate(message.createdAt?.seconds)}
+                </span>
+              </div>
+              <div>{message.text}</div>
+            </div>
           </div>
         ))}
       </div>
@@ -67,9 +85,11 @@ const Chat = ({ room }) => {
           onChange={(event) => setNewMessage(event.target.value)}
           value={newMessage}
         />
-        <button type="submit" className="send-button">
-          Send
-        </button>
+        <div className="button-container">
+          <button type="submit" className="send-button">
+            Send
+          </button>
+        </div>
       </form>
     </div>
   );
